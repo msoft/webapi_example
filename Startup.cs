@@ -27,10 +27,10 @@ namespace WebApiExample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             services.AddSingleton<IPizzaFlavourRepositoryService>(new PizzaFlavourRepositoryService());
             services.AddSingleton<IPizzaOrderRepositoryService, PizzaOrderRepositoryService>();
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
@@ -64,6 +64,11 @@ namespace WebApiExample
             });
 
             app.UseMvc();
+
+            // app.UseMvc(routes => {
+            //     routes.MapRoute("secure", "secure", new { Controller = "Admin", Action = "Index" });    
+            //     routes.MapRoute("default", "{controller=Home}/{action=Index}");
+            // });
         }
     }
 }

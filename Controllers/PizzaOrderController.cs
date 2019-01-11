@@ -34,7 +34,7 @@ namespace WebApiExample.Controllers
             return Ok(orderedPizzas);
         }
 
-        [HttpPost]
+        [HttpPost("{pizzaFlavour}")]
         public ActionResult<int> AddNewOrder(string pizzaFlavour)
         {
             if (string.IsNullOrEmpty(pizzaFlavour))
