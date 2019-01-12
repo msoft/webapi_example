@@ -36,7 +36,7 @@ namespace WebApiExample
             services.AddSwaggerGen(c =>
             {
                 // Permet de préciser de la documentation
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "Pizza API", Version = "v1" });
             });
         }
 
@@ -60,15 +60,10 @@ namespace WebApiExample
             app.UseSwaggerUI(c =>
             {
                 // Ajoute un endpoint nommé d'une certaine façon
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My simple API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pizza API V1");
             });
 
             app.UseMvc();
-
-            // app.UseMvc(routes => {
-            //     routes.MapRoute("secure", "secure", new { Controller = "Admin", Action = "Index" });    
-            //     routes.MapRoute("default", "{controller=Home}/{action=Index}");
-            // });
         }
     }
 }
