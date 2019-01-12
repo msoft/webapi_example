@@ -7,8 +7,8 @@ using WebApiExample.Services;
 
 namespace WebApiExample.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    // [Route("api/[controller]")]
+    // [ApiController]
     public class PizzaOrderController : ControllerBase
     {
         private readonly IPizzaFlavourRepositoryService flavourService;
@@ -21,7 +21,7 @@ namespace WebApiExample.Controllers
             this.orderService = orderService;
         }
 
-        [HttpGet]
+        // [HttpGet]
         public ActionResult<IEnumerable<OrderedPizza>> GetOrderedPizzas()
         {
             var pizzaOrders = this.orderService.GetOrders();
@@ -34,17 +34,17 @@ namespace WebApiExample.Controllers
             return Ok(orderedPizzas);
         }
 
-        [HttpPost("{pizzaFlavour}")]
-        public ActionResult<int> AddNewOrder(string pizzaFlavour)
+        // [HttpPost("{pizzaFlavour}")]
+        public ActionResult<int> AddNewOrder(string id)
         {
-            if (string.IsNullOrEmpty(pizzaFlavour))
+            if (string.IsNullOrEmpty(id))
             {
-                return BadRequest($"The parameter '{nameof(pizzaFlavour)}' shall be provided.");
+                return BadRequest($"The parameter '{nameof(id)}' shall be provided.");
             }
 
-            if (!this.flavourService.TryGetFlavour(pizzaFlavour, out PizzaFlavour flavour))
+            if (!this.flavourService.TryGetFlavour(id, out PizzaFlavour flavour))
             {
-                return BadRequest($"The flavour '{pizzaFlavour}' is unknown.");
+                return BadRequest($"The flavour '{id}' is unknown.");
             }
 
             var orderId = this.orderService.AddNewOrder(flavour.Id);

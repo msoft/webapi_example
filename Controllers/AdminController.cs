@@ -7,8 +7,6 @@ using WebApiExample.Services;
 
 namespace WebApiExample.Controllers
 {    
-    [Route("admin/[controller]")]
-    [ApiController]
     public class AdminController : ControllerBase
     {
         private readonly IPizzaOrderRepositoryService orderService;
@@ -18,13 +16,11 @@ namespace WebApiExample.Controllers
             this.orderService = orderService;
         }
 
-        [HttpGet]
         public ActionResult<IEnumerable<int>> GetOrders()
         {
             return Ok(this.orderService.GetOrders().Select(o => o.Id));
         }
 
-        [HttpDelete("{id}")]
         public ActionResult DeleteOrder(int id)
         {
             if (this.orderService.DeleteOrder(id))
