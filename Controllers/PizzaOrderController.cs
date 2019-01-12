@@ -21,7 +21,7 @@ namespace WebApiExample.Controllers
             this.orderService = orderService;
         }
 
-        [HttpGet]
+        [HttpGet("Index")]
         public ActionResult<IEnumerable<OrderedPizza>> GetOrderedPizzas()
         {
             var pizzaOrders = this.orderService.GetOrders();

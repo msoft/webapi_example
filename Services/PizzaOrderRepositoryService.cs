@@ -10,6 +10,8 @@ namespace WebApiExample.Services
         IEnumerable<PizzaOrder> GetOrders();
 
         int AddNewOrder(int flavourId);
+
+        bool DeleteOrder(int orderId);
     }
 
     public class PizzaOrderRepositoryService : IPizzaOrderRepositoryService
@@ -40,6 +42,18 @@ namespace WebApiExample.Services
             this.orders.Add(new PizzaOrder(newId, flavourId, DateTime.Now));
 
             return newId;
+        }
+
+        public bool DeleteOrder(int orderId)
+        {
+            var foundOrder = this.orders.FirstOrDefault(o => o.Id.Equals(orderId));
+            if (foundOrder != null) 
+            {
+                this.orders.Remove(foundOrder);
+                return true;
+            }
+
+            return false;            
         }
     }
 
