@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using WebApiExample.Services;
+using Newtonsoft.Json;
 
 namespace WebApiExample
 {
@@ -27,7 +29,11 @@ namespace WebApiExample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            .AddJsonOptions(options => 
+                { 
+                    options.SerializerSettings.Formatting = Formatting.Indented; 
+                }); ;
 
             services.AddSingleton<IPizzaFlavourRepositoryService>(new PizzaFlavourRepositoryService());
             services.AddSingleton<IPizzaOrderRepositoryService, PizzaOrderRepositoryService>();
@@ -36,7 +42,28 @@ namespace WebApiExample
             services.AddSwaggerGen(c =>
             {
                 // Permet de préciser de la documentation
-                c.SwaggerDoc("v1", new Info { Title = "Pizza API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { 
+                    Title = "Pizza API", 
+                    Version = "v1",
+                    Description = "API for pizza",
+                    TermsOfService = "Terms of Service",
+                    Contact = new Contact
+                    {
+                        Name = "Developer Name",
+                        Email = "developer.name@example.com"
+                    },
+                    License = new License
+                    {
+                        Name = "Apache 2.0",
+                        Url = "http://www.apache.org/licenses/LICENSE-2.0.html"
+                    }
+                
+                });
+
+                c.EnableAnnotations();
+
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "WebApi.xml");
+                c.IncludeXmlComments(filePath);
             });
         }
 
@@ -61,6 +88,9 @@ namespace WebApiExample
             {
                 // Ajoute un endpoint nommé d'une certaine façon
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Pizza API V1");
+                c.DocumentTitle = "My Swagger UI";
+                c.DisplayOperationId();
+                //c.RoutePrefix = "pizza-api-docs";
             });
 
             app.UseMvc();
