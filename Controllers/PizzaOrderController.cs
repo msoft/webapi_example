@@ -7,6 +7,9 @@ using WebApiExample.Services;
 
 namespace WebApiExample.Controllers
 {
+    /// <summary>
+    /// Pizza order controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class PizzaOrderController : ControllerBase
@@ -14,6 +17,11 @@ namespace WebApiExample.Controllers
         private readonly IPizzaFlavourRepositoryService flavourService;
         private readonly IPizzaOrderRepositoryService orderService;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="PizzaOrderController" />
+        /// </summary>
+        /// <param name="flavourService"></param>
+        /// <param name="orderService"></param>
         public PizzaOrderController(IPizzaFlavourRepositoryService flavourService,
             IPizzaOrderRepositoryService orderService)
         {
@@ -21,6 +29,10 @@ namespace WebApiExample.Controllers
             this.orderService = orderService;
         }
 
+        /// <summary>
+        /// Returns the list of ordered pizza
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public ActionResult<IEnumerable<OrderedPizza>> GetOrderedPizzas()
         {
@@ -34,6 +46,11 @@ namespace WebApiExample.Controllers
             return Ok(orderedPizzas);
         }
 
+        /// <summary>
+        /// Adds a new pizza order using the pizza flavour name
+        /// </summary>
+        /// <param name="pizzaFlavour"></param>
+        /// <returns></returns>
         [HttpPost("{pizzaFlavour}")]
         public ActionResult<int> AddNewOrder(string pizzaFlavour)
         {
@@ -53,14 +70,35 @@ namespace WebApiExample.Controllers
         }
     }
 
+    /// <summary>
+    /// Ordered pizza
+    /// </summary>
     public class OrderedPizza
     {
+        /// <summary>
+        /// Gets the order ID
+        /// </summary>
+        /// <returns></returns>
         public int OrderId { get; set; }
 
+        /// <summary>
+        /// Gets the pizza flavour
+        /// </summary>
+        /// <returns></returns>
         public string PizzaFlavour { get; set; }
 
+        /// <summary>
+        /// Gets the order date
+        /// </summary>
+        /// <returns></returns>
         public DateTime OrderDate { get; set; }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="PizzaOrder" />
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="pizzaFlavour"></param>
+        /// <param name="orderDate"></param>        
         public OrderedPizza(int orderId, string pizzaFlavour, DateTime orderDate)
         {
             this.OrderId = orderId;
