@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApiExample.Services
 {
@@ -46,26 +47,15 @@ namespace WebApiExample.Services
     /// </summary>
     public class PizzaFlavourRepositoryService : IPizzaFlavourRepositoryService
     {
-        private const string Ham = "Ham";
-        private const string Cheese = "Cheese";
-        private const string Mushrooms = "Mushrooms";
-        private const string TomatoSauce = "TomatoSauce";
-        private const string Pepper = "Pepper";
-        private const string Artichokes = "Artichokes";
-
         private readonly List<PizzaFlavour> flavours = new List<PizzaFlavour>();
+        private readonly IServiceProvider serviceProvider;
 
         /// <summary>
         /// Creates a new instance of <see cref="PizzaFlavourRepositoryService" />
         /// </summary>
-        public PizzaFlavourRepositoryService()
+        public PizzaFlavourRepositoryService(IServiceProvider serviceProvider)
         {
-            flavours.Add(new PizzaFlavour(1, "Regina", 
-                new List<string> { Ham, Cheese, Mushrooms, TomatoSauce}));
-            flavours.Add(new PizzaFlavour(2, "Margarita", 
-                new List<string> { Cheese, TomatoSauce }));
-            flavours.Add(new PizzaFlavour(3, "Quattro Stagioni", 
-                new List<string> { Cheese, TomatoSauce, Mushrooms, Ham, Artichokes, Pepper }));
+            this.serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -74,7 +64,7 @@ namespace WebApiExample.Services
         /// <returns></returns>
         public IDictionary<int, string> GetFlavours()
         {
-            return this.flavours.ToDictionary(f => f.Id, f => f.Name);
+            return this.GetExistingFlavours().ToDictionary(f => f.Id, f => f.Name);
         }
 
         /// <summary>
@@ -85,7 +75,7 @@ namespace WebApiExample.Services
         /// <returns></returns>
         public bool TryGetFlavour(string flavourName, out PizzaFlavour flavour)
         {
-            flavour = this.flavours.FirstOrDefault(f => f.Name.Equals(flavourName));
+            flavour = this.GetExistingFlavours().FirstOrDefault(f => f.Name.Equals(flavourName));
             return flavour != null;
         }
 
@@ -116,57 +106,26 @@ namespace WebApiExample.Services
         /// <returns></returns>
         public int AddNewFlavour(string flavourName, IEnumerable<string> ingredients)
         {            
-            int maxId = this.flavours.Select(f => f.Id).DefaultIfEmpty(0).Max();
+            int maxId = this.GetExistingFlavours().Select(f => f.Id).DefaultIfEmpty(0).Max();
             int newId = maxId + 1;
 
             this.flavours.Add(new PizzaFlavour(newId, flavourName, ingredients.ToList()));
 
             return newId;
         }
-    }
 
-    /// <summary>
-    /// Pizza flavour
-    /// </summary>
-    public class PizzaFlavour
-    {
-        /// <summary>
-        /// Gets the flavour ID
-        /// </summary>
-        /// <returns></returns>
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Gets flavour name
-        /// </summary>
-        /// <returns></returns>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Gets the list of ingredients
-        /// </summary>
-        /// <returns></returns>
-        public IList<string> Ingredients { get; set; }
-
-        /// <summary>
-        /// Creates a new instance of <see cref="PizzaFlavour" />
-        /// </summary>
-        public PizzaFlavour()
+        private IEnumerable<PizzaFlavour> GetExistingFlavours()
         {
-            
-        }
+            if (!this.flavours.Any())
+            {
+                using (var scope = this.serviceProvider.CreateScope())
+                {
+                    var pizzaFlavourGenerator = scope.ServiceProvider.GetRequiredService<IPizzaFlavourGeneratorService>();
+                    this.flavours.AddRange(pizzaFlavourGenerator.CreateBasicFlavours());
+                }
+            }
 
-        /// <summary>
-        /// Creates a new instance of <see cref="PizzaFlavour" />
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="name"></param>
-        /// <param name="ingredients"></param>
-        public PizzaFlavour(int id, string name, IList<string> ingredients)
-        {
-            this.Id = id;
-            this.Name = name;
-            this.Ingredients = new List<string>(ingredients);
+            return this.flavours;
         }
     }
 }

@@ -43,7 +43,8 @@ namespace WebApiExample
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddSingleton<IPizzaFlavourRepositoryService>(new PizzaFlavourRepositoryService());
+            services.AddTransient<IPizzaFlavourGeneratorService, PizzaFlavourGeneratorService>();
+            services.AddSingleton<IPizzaFlavourRepositoryService, PizzaFlavourRepositoryService>();
             services.AddSingleton<IPizzaOrderRepositoryService, PizzaOrderRepositoryService>();
 
             // Register the Swagger generator, defining 1 or more Swagger documents
