@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebApiExample.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace WebApiExample.Controllers
 {
@@ -22,9 +21,9 @@ namespace WebApiExample.Controllers
         /// Creates a new instance of <see cref="PizzaFlavourController" />
         /// </summary>
         /// <param name="flavourService"></param>
-        public PizzaFlavourController(IServiceProvider serviceProvider)
+        public PizzaFlavourController(IPizzaFlavourRepositoryService flavourService)
         {
-            this.flavourService = serviceProvider.GetRequiredService<IPizzaFlavourRepositoryService>();
+            this.flavourService = flavourService;
         }
 
         /// <summary>

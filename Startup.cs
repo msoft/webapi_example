@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +13,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 using WebApiExample.Services;
+using Autofac;
+using log4net;
+using log4net.Config;
+using log4net.Repository;
+using System.Reflection;
 
 namespace WebApiExample
 {
@@ -20,20 +26,25 @@ namespace WebApiExample
     /// </summary>
     public class Startup
     {
+        private IHostingEnvironment hostingEnvironment;
+
         /// <summary>
         /// Creates a new instance of <see cref="Startup" />
         /// </summary>
         /// <param name="configuration"></param>
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment hostingEnvironment)
         {
-            this.Configuration = configuration;
+            this.hostingEnvironment = hostingEnvironment;
+
+            var builder = new ConfigurationBuilder();
+            this.Configuration = builder.Build();
         }
 
         /// <summary>
         /// Represents a set of key/value application configuration properties.
         /// </summary>
         /// <returns></returns>
-        public IConfiguration Configuration { get; }
+        public IConfigurationRoot Configuration { get; }        
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container. 
@@ -43,16 +54,17 @@ namespace WebApiExample
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddTransient<IPizzaFlavourGeneratorService, PizzaFlavourGeneratorService>();
-            services.AddSingleton<IPizzaFlavourRepositoryService, PizzaFlavourRepositoryService>();
-            services.AddSingleton<IPizzaOrderRepositoryService, PizzaOrderRepositoryService>();
-
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
                 // Permet de préciser de la documentation
                 c.SwaggerDoc("v1", new Info { Title = "Pizza API", Version = "v1" });
             });
+        }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterModule(new AutofacModule());
         }
 
         /// <summary>
@@ -62,6 +74,13 @@ namespace WebApiExample
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            var configFile = Path.Combine("log4net.config");
+            //ILoggerRepository repository = LogManager.CreateRepository("custom");
+            var repository = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), 
+                typeof(log4net.Repository.Hierarchy.Hierarchy));
+            XmlConfigurator.Configure(repository, new FileInfo(configFile));
+
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
