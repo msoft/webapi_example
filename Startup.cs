@@ -74,10 +74,9 @@ namespace WebApiExample
         /// <param name="env"></param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            var configFile = Path.Combine("log4net.config");
+            var configFile = Path.Combine(env.ContentRootPath, "log4net.config");
             //ILoggerRepository repository = LogManager.CreateRepository("custom");
-            var repository = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), 
-                typeof(log4net.Repository.Hierarchy.Hierarchy));
+            var repository = log4net.LogManager.GetRepository(Assembly.GetEntryAssembly());
             XmlConfigurator.Configure(repository, new FileInfo(configFile));
 
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Autofac;
 using WebApiExample.Services;
 using WebApiExample.Interceptors;
@@ -11,7 +12,8 @@ namespace WebApiExample
         protected override void Load(ContainerBuilder builder)
         {
             // Typed registration
-            builder.Register(c => new CallLogger(Console.Out));
+            builder.Register(c => new LoggingInterceptor());
+            builder.Register(c => new TimingInterceptor());
 
             builder.RegisterType<PizzaFlavourGeneratorService>()
             .As<IPizzaFlavourGeneratorService>()
@@ -23,7 +25,20 @@ namespace WebApiExample
             .As<IPizzaOrderRepositoryService>()
             .SingleInstance()
             .EnableInterfaceInterceptors()
-            .InterceptedBy(typeof(CallLogger));;
+            .InterceptedBy(typeof(LoggingInterceptor), typeof(TimingInterceptor));
+
+            //this.RegisterObjectsByConventionBased(builder);
+        }
+
+        private void RegisterObjectsByConventionBased(ContainerBuilder builder)
+        {
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => x.FullName.StartsWith("WebApi")).ToArray();
+
+            builder.RegisterAssemblyTypes(assemblies)
+                .Where(t => t.IsClass && t.FullName.EndsWith("Service"))
+                .AsImplementedInterfaces()
+                .SingleInstance();
         }
     }
 }

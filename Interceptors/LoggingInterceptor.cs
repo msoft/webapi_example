@@ -6,15 +6,13 @@ using log4net;
 
 namespace WebApiExample.Interceptors
 {
-    public class CallLogger : IInterceptor
+    public class LoggingInterceptor : IInterceptor
     {
-        private TextWriter _output;
         private ILog logger;
 
-        public CallLogger(TextWriter output)
+        public LoggingInterceptor()
         {
-            _output = output;
-            this.logger = LogManager.GetLogger(typeof(CallLogger));
+            this.logger = LogManager.GetLogger(typeof(LoggingInterceptor));
         }
 
         public void Intercept(IInvocation invocation)
@@ -22,13 +20,9 @@ namespace WebApiExample.Interceptors
             this.logger.InfoFormat("Calling method {0} with parameters {1}... ",
                 invocation.Method.Name,
                 string.Join(", ", invocation.Arguments.Select(a => (a ?? "").ToString()).ToArray()));
-            _output.Write("Calling method {0} with parameters {1}... ",
-                invocation.Method.Name,
-                string.Join(", ", invocation.Arguments.Select(a => (a ?? "").ToString()).ToArray()));
 
             invocation.Proceed();
 
-            _output.WriteLine("Done: result was {0}.", invocation.ReturnValue);
             this.logger.InfoFormat("Done: result was {0}.", invocation.ReturnValue);
         }
     }
